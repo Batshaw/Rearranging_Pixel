@@ -38,12 +38,23 @@ int main(int argc, char* argv[]) {
 
     // Take inputs from command line as options for the application
     string fileName = "test_01.jpg";    // default img
-    int pixelPercent = 50;              // default percent of the pixel that need tobe resampled
+    int pixelPercent = 25;              // default percent of the pixel that need tobe resampled
+    string sampler_name = "halton";
+    int base_x = 2;
+    int base_y = 3;
 
     if(argc > 2 ) {
-        fileName = argv[1];
-        pixelPercent = stoi(argv[2]);
+        sampler_name = argv[1];
+        if(sampler_name == "halton") {
+            base_x = stoi(argv[2]);
+            base_y = stoi(argv[3]);
+            pixelPercent = stoi(argv[4]);
+        }
+        if(sampler_name == "random") {
+            pixelPercent = stoi(argv[2]);
+        }
     }
+
 
     string fullFilePath = full_file_path(fileName);
     cout << "Name of the opened file: " << fullFilePath << endl;
@@ -68,8 +79,13 @@ int main(int argc, char* argv[]) {
 
     // create new sampler and call random sampling method
     Sampler rand_sampler(downsample_img, pixelPercent);
-    // sampling_pattern = rand_sampler.random_sampling();
-    sampling_pattern = rand_sampler.halton_sequence(2, 3);
+    if(sampler_name == "random") {
+        sampling_pattern = rand_sampler.random_sampling();
+    }
+    if(sampler_name == "halton") {
+        sampling_pattern = rand_sampler.halton_sequence(2, 3);
+    }
+    
 
     // use sampling pattern to resample pixel from input image to output image
     for(int i = 0; i < sampling_pattern.size(); i++) {
@@ -77,7 +93,11 @@ int main(int argc, char* argv[]) {
         resampled_img.at<Vec3b>(pos) = downsample_img.at<Vec3b>(pos);
     }
 
-    imwrite("../imgs/random_pixels_out.jpg", resampled_img);
-    // imwrite("../imgs/halton_out.jpg", resampled_img);
-
+    if(sampler_name == "random") {
+        imwrite("../imgs/outputs/random_pixels_out.jpg", resampled_img);
+    }
+    if(sampler_name == "halton") {
+        imwrite("../imgs/outputs/halton_sequence_out.jpg", resampled_img);
+    }
+    
 }

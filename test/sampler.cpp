@@ -22,39 +22,35 @@ class Sampler {
         int _num_pixel_xAxis;
         int _num_pixel_yAxis;
 
+
+
         // random function using pseudo random generator mt19937
         int rand_gen(int min_rand, int max_rand) {
             std::random_device rand_device;
             std::mt19937 generator(rand_device());
             // std::default_random_engine generator;
-            // std::uniform_real_distribution<> dist(min_rand, max_rand);
-            std::uniform_int_distribution<> dist(min_rand, max_rand);
-            int random_number = dist(generator);
+            std::uniform_real_distribution<> dist(min_rand, max_rand);
+            // std::uniform_int_distribution<> dist(min_rand, max_rand);
+            float random_number = dist(generator);
             // cout << "test float random: " << random_number << endl;
 
-            // return floor(random_number);
-            return random_number;
+            return floor(random_number);
+            // return random_number;
         }    
 
         // help function to generate n-th number of Halton Sequence
-        int halton_single_number(int index, int base) {
+        float halton_single_number(int index, int base) {
             
-            int result = 0;
-            int n0 = index;
-            float inverse_base = 1 / base;
+            float result = 0;
+            float f = 1;
 
-            do
+            while (index > 0)
             {
                 // compute result
-                int n1 = std::floor(n0 / base);
-                int r = n0 - n1*base;
-                result += inverse_base*r;
-                
-                // prepare for next round
-                inverse_base /= base;
-                n0 = n1;
-
-            } while (n0 > 0);
+                f /= base;
+                result += f*(index % base);
+                index /= base;
+            }
             
             return result;
         }    
@@ -63,23 +59,20 @@ class Sampler {
         Sampler(Mat input_image, int percent_pixels){
             _input_image = input_image;
 
-            int _num_pixel_xAxis = _input_image.size().width;
-            int _num_pixel_yAxis = _input_image.size().height;
+            _num_pixel_xAxis = _input_image.size().width;
+            _num_pixel_yAxis = _input_image.size().height;
             _number_sample_pixel = _num_pixel_xAxis * _num_pixel_yAxis * percent_pixels / 100;
-
         }
 
         // random sampling method
         vector<pair<int, int>> random_sampling() {
 
             vector<pair<int, int>> sampled_pxs(_number_sample_pixel);
-            int x_pos;
-            int y_pos;
+            int x_pos = 0;
+            int y_pos = 0;
             std::pair<int, int> pos;
 
             for(int i = 0; i < _number_sample_pixel; ++i) {
-                vec2 seed_x = {i*123, i*56745};
-                vec2 seed_y = {i*2355.234, i*14124.656};
 
                 do
                 {
@@ -106,12 +99,12 @@ class Sampler {
             for(int i = 0; i < _number_sample_pixel; ++i) {
 
                 // generate i-th number of Halton Sequence for each axis
-                x_pos = halton_single_number(i, base_x);
-                y_pos = halton_single_number(i, base_y);
-
-                // make pair and push in the pattern vector
+                x_pos = halton_single_number(i+1, base_x)*_num_pixel_xAxis;
+                y_pos = halton_single_number(i+1, base_y)*_num_pixel_yAxis;
                 pos = make_pair(x_pos, y_pos);
-                cout << "(" << pos.first << ", " << pos.second << ")     ";
+                
+                // push in the pattern vector
+                cout << "(" << pos.first << ", " << pos.second << ")  ";
                 sampled_pxs.push_back(pos);
             }
             return sampled_pxs;

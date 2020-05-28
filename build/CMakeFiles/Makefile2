@@ -44,10 +44,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/batshaw/Documents/MI/6.Sem/Project/RearrPixel
+CMAKE_SOURCE_DIR = /home/batshaw/Documents/MI/6.Sem/Project/Rearranging_Pixel
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/batshaw/Documents/MI/6.Sem/Project/RearrPixel/build
+CMAKE_BINARY_DIR = /home/batshaw/Documents/MI/6.Sem/Project/Rearranging_Pixel/build
 
 #=============================================================================
 # Directory level rules for the build root directory
@@ -74,14 +74,14 @@ clean: CMakeFiles/Test_1.dir/clean
 CMakeFiles/Test_1.dir/all:
 	$(MAKE) -f CMakeFiles/Test_1.dir/build.make CMakeFiles/Test_1.dir/depend
 	$(MAKE) -f CMakeFiles/Test_1.dir/build.make CMakeFiles/Test_1.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/batshaw/Documents/MI/6.Sem/Project/RearrPixel/build/CMakeFiles --progress-num=1,2 "Built target Test_1"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/batshaw/Documents/MI/6.Sem/Project/Rearranging_Pixel/build/CMakeFiles --progress-num=1,2 "Built target Test_1"
 .PHONY : CMakeFiles/Test_1.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/Test_1.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/batshaw/Documents/MI/6.Sem/Project/RearrPixel/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/batshaw/Documents/MI/6.Sem/Project/Rearranging_Pixel/build/CMakeFiles 2
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/Test_1.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/batshaw/Documents/MI/6.Sem/Project/RearrPixel/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/batshaw/Documents/MI/6.Sem/Project/Rearranging_Pixel/build/CMakeFiles 0
 .PHONY : CMakeFiles/Test_1.dir/rule
 
 # Convenience name for target.

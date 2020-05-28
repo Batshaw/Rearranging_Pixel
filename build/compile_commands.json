@@ -1,7 +1,0 @@
-[
-{
-  "directory": "/home/batshaw/Documents/MI/6.Sem/Project/RearrPixel/build",
-  "command": "/bin/g++-9   -I/home/batshaw/Documents/MI/6.Sem/Project/RearrPixel/include/glm-0.9.5.3 -I/home/batshaw/Documents/MI/6.Sem/Project/RearrPixel/test -isystem /usr/include/opencv4  -g   -o CMakeFiles/Test_1.dir/test/test_1.cpp.o -c /home/batshaw/Documents/MI/6.Sem/Project/RearrPixel/test/test_1.cpp",
-  "file": "/home/batshaw/Documents/MI/6.Sem/Project/RearrPixel/test/test_1.cpp"
-}
-]

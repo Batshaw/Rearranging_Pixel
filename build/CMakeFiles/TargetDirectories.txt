@@ -1,3 +1,3 @@
-/home/batshaw/Documents/MI/6.Sem/Project/RearrPixel/build/CMakeFiles/rebuild_cache.dir
-/home/batshaw/Documents/MI/6.Sem/Project/RearrPixel/build/CMakeFiles/edit_cache.dir
-/home/batshaw/Documents/MI/6.Sem/Project/RearrPixel/build/CMakeFiles/Test_1.dir
+/home/batshaw/Documents/MI/6.Sem/Project/Rearranging_Pixel/build/CMakeFiles/rebuild_cache.dir
+/home/batshaw/Documents/MI/6.Sem/Project/Rearranging_Pixel/build/CMakeFiles/edit_cache.dir
+/home/batshaw/Documents/MI/6.Sem/Project/Rearranging_Pixel/build/CMakeFiles/Test_1.dir
