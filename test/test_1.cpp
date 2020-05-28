@@ -68,7 +68,8 @@ int main(int argc, char* argv[]) {
 
     // create new sampler and call random sampling method
     Sampler rand_sampler(downsample_img, pixelPercent);
-    sampling_pattern = rand_sampler.random_sampling();
+    // sampling_pattern = rand_sampler.random_sampling();
+    sampling_pattern = rand_sampler.halton_sequence(2, 3);
 
     // use sampling pattern to resample pixel from input image to output image
     for(int i = 0; i < sampling_pattern.size(); i++) {
@@ -77,4 +78,6 @@ int main(int argc, char* argv[]) {
     }
 
     imwrite("../imgs/random_pixels_out.jpg", resampled_img);
+    // imwrite("../imgs/halton_out.jpg", resampled_img);
+
 }
