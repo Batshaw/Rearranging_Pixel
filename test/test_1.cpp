@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
     Mat downsample_img;
     cv::resize(input_img, downsample_img, Size(), 0.1, 0.1, INTER_LINEAR);
     // cout << "size: " << downsample_img.size() << endl;
-
+    // vector to store information of the pixel's position
     vector<pair<int, int>> sampling_pattern;
 
 
@@ -99,5 +99,5 @@ int main(int argc, char* argv[]) {
     if(sampler_name == "halton") {
         imwrite("../imgs/outputs/halton_sequence_out.jpg", resampled_img);
     }
-    
+
 }
