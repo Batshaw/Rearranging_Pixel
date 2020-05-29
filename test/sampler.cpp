@@ -24,6 +24,13 @@ class Sampler {
         int _num_pixel_yAxis;
 
 
+        // print the sampling pattern
+        void print_sampling_pattern(vector<pair<int, int>> sampled_pxs) {
+            for(int i = 0; i < sampled_pxs.size(); ++i) {
+                cout << "(" << sampled_pxs[i].first << ", " << sampled_pxs[i].second << ")   ";
+            }
+            cout << endl;
+        }
 
         // random function using pseudo random generator mt19937
         int rand_gen(int min_rand, int max_rand) {
@@ -113,30 +120,50 @@ class Sampler {
 
         vector<pair<int, int>> correlated_multi_jitterred() {
 
-            int x_pos;
-            int y_pos;
-            std::pair<int, int> pos;
-
             // find nearest square number to the number of samples
             int n = std::pow(std::ceil(std::sqrt(_number_sample_pixel)), 2);
             cout << "new number of samples: " << n << endl;
             // use its square root as size of the cells
+
             // size of the cells
             int s = std::sqrt(n);
             cout << "size of cells: " << s << endl;
+
             // vector to store the sampling pattern, with size is n
-            vector<pair<int, int>> sampled_pxs(n);
+            vector<pair<int, int>> sampled_pxs(s*s, make_pair(0, 0));
 
             for(int j = 0; j < s; ++j) {
                 for(int i = 0; i < s; ++i) {
-                    x_pos = (int)((i + (j + drand48()) / s) / s * _num_pixel_xAxis);
-                    y_pos = (int)((j + (i + drand48()) / s) / s * _num_pixel_yAxis);
-                    pos = make_pair(x_pos, y_pos);
 
-                    cout << "(" << pos.first << ", " << pos.second << ")  ";
-                    sampled_pxs.push_back(pos);
+                    // placing the sampling position in "canonical" arrangement
+                    sampled_pxs[j * s + i].first = (int)((i + (j + drand48()) / s) / s * _num_pixel_xAxis);
+                    sampled_pxs[j * s + i].second = (int)((j + (i + drand48()) / s) / s * _num_pixel_yAxis);
                 }
             }
+
+            // shuffle the arrangement
+            // 1. X-coordinates in each column of the cells are shuffled
+            for(int j = 0; j < s; ++j) {
+
+                int temp = j + drand48() * (s - j);
+
+                for(int i = 0; i < s; ++i) {
+                    std::swap(sampled_pxs[j * s + i].first,
+                              sampled_pxs[temp * s + i].first);
+                }
+            }
+
+            // 2. Y-coordinates in each row of the cells are shuffled
+            for(int i = 0; i < s; ++i) {
+
+                int temp = i + drand48() * (s - i);
+
+                for(int j = 0; j < s; ++j) {
+                    std::swap(sampled_pxs[j * s + i].second,
+                              sampled_pxs[j * s + temp].second);
+                }
+            }
+            print_sampling_pattern(sampled_pxs);
 
             return sampled_pxs;
         }

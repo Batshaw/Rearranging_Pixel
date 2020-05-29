@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
 
     // Take inputs from command line as options for the application
     string fileName = "test_01.jpg";    // default img
-    int pixelPercent = 50;              // default percent of the pixel that need tobe resampled
+    int pixelPercent = 10;              // default percent of the pixel that need tobe resampled
     string sampler_name = "";
     int base_x = 2;
     int base_y = 3;
@@ -51,6 +51,9 @@ int main(int argc, char* argv[]) {
             pixelPercent = stoi(argv[4]);
         }
         if(sampler_name == "random") {
+            pixelPercent = stoi(argv[2]);
+        }
+        if(sampler_name == "corjitt") {
             pixelPercent = stoi(argv[2]);
         }
     }
@@ -85,7 +88,10 @@ int main(int argc, char* argv[]) {
     if(sampler_name == "halton") {
         sampling_pattern = rand_sampler.halton_sequence(2, 3);
     }
-    // sampling_pattern = rand_sampler.correlated_multi_jitterred();
+    if(sampler_name == "corjitt") {
+        sampling_pattern = rand_sampler.correlated_multi_jitterred();
+    }
+    
     
 
     // use sampling pattern to resample pixel from input image to output image
@@ -103,5 +109,7 @@ int main(int argc, char* argv[]) {
     if(sampler_name == "halton") {
         imwrite("../imgs/outputs/halton_sequence_out.png", resampled_img);
     }
-    // imwrite("../imgs/outputs/correlated_jittered_out.png", resampled_img);
+    if(sampler_name == "corjitt") {
+        imwrite("../imgs/outputs/correlated_jittered_out.png", resampled_img);
+    }
 }
