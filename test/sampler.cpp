@@ -1,6 +1,7 @@
 #include <iostream>
 #include <random>
 #include <algorithm> 
+#include <cmath>
 
 #include <opencv4/opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
@@ -53,7 +54,7 @@ class Sampler {
             }
             
             return result;
-        }    
+        }  
         
     public:
         Sampler(Mat input_image, int percent_pixels){
@@ -107,6 +108,36 @@ class Sampler {
                 cout << "(" << pos.first << ", " << pos.second << ")  ";
                 sampled_pxs.push_back(pos);
             }
+            return sampled_pxs;
+        }
+
+        vector<pair<int, int>> correlated_multi_jitterred() {
+
+            int x_pos;
+            int y_pos;
+            std::pair<int, int> pos;
+
+            // find nearest square number to the number of samples
+            int n = std::pow(std::ceil(std::sqrt(_number_sample_pixel)), 2);
+            cout << "new number of samples: " << n << endl;
+            // use its square root as size of the cells
+            // size of the cells
+            int s = std::sqrt(n);
+            cout << "size of cells: " << s << endl;
+            // vector to store the sampling pattern, with size is n
+            vector<pair<int, int>> sampled_pxs(n);
+
+            for(int j = 0; j < s; ++j) {
+                for(int i = 0; i < s; ++i) {
+                    x_pos = (int)((i + (j + drand48()) / s) / s * _num_pixel_xAxis);
+                    y_pos = (int)((j + (i + drand48()) / s) / s * _num_pixel_yAxis);
+                    pos = make_pair(x_pos, y_pos);
+
+                    cout << "(" << pos.first << ", " << pos.second << ")  ";
+                    sampled_pxs.push_back(pos);
+                }
+            }
+
             return sampled_pxs;
         }
 };

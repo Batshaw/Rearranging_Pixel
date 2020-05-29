@@ -38,8 +38,8 @@ int main(int argc, char* argv[]) {
 
     // Take inputs from command line as options for the application
     string fileName = "test_01.jpg";    // default img
-    int pixelPercent = 25;              // default percent of the pixel that need tobe resampled
-    string sampler_name = "halton";
+    int pixelPercent = 50;              // default percent of the pixel that need tobe resampled
+    string sampler_name = "";
     int base_x = 2;
     int base_y = 3;
 
@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
 
     // downsample the input image for testing
     Mat downsample_img;
-    cv::resize(input_img, downsample_img, Size(), 0.1, 0.1, INTER_LINEAR);
+    cv::resize(input_img, downsample_img, Size(), 1.0, 1.0, INTER_LINEAR);
     // cout << "size: " << downsample_img.size() << endl;
     // vector to store information of the pixel's position
     vector<pair<int, int>> sampling_pattern;
@@ -85,19 +85,23 @@ int main(int argc, char* argv[]) {
     if(sampler_name == "halton") {
         sampling_pattern = rand_sampler.halton_sequence(2, 3);
     }
+    // sampling_pattern = rand_sampler.correlated_multi_jitterred();
     
 
     // use sampling pattern to resample pixel from input image to output image
     for(int i = 0; i < sampling_pattern.size(); i++) {
         cv::Point pos = cv::Point(sampling_pattern[i].first, sampling_pattern[i].second);
-        resampled_img.at<Vec3b>(pos) = downsample_img.at<Vec3b>(pos);
+        // check again the position before resampling
+        if(pos.x >= 0 && pos.x <= downsample_img.size().width && pos.y >= 0 && pos.y <= downsample_img.size().height) {
+            resampled_img.at<Vec3b>(pos) = downsample_img.at<Vec3b>(pos);
+        }
     }
 
     if(sampler_name == "random") {
         imwrite("../imgs/outputs/random_pixels_out.jpg", resampled_img);
     }
     if(sampler_name == "halton") {
-        imwrite("../imgs/outputs/halton_sequence_out.jpg", resampled_img);
+        imwrite("../imgs/outputs/halton_sequence_out.png", resampled_img);
     }
-
+    // imwrite("../imgs/outputs/correlated_jittered_out.png", resampled_img);
 }
