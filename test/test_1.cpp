@@ -15,6 +15,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 
 #include <sampler.cpp>
+#include <interpolater.cpp>
 
 using namespace cv;
 using namespace std;
@@ -44,17 +45,18 @@ int main(int argc, char* argv[]) {
     int base_y = 3;
 
     if(argc > 2 ) {
-        sampler_name = argv[1];
+        fileName = argv[1];
+        sampler_name = argv[2];
         if(sampler_name == "halton") {
-            base_x = stoi(argv[2]);
-            base_y = stoi(argv[3]);
-            pixelPercent = stoi(argv[4]);
+            base_x = stoi(argv[3]);
+            base_y = stoi(argv[4]);
+            pixelPercent = stoi(argv[5]);
         }
         if(sampler_name == "random") {
-            pixelPercent = stoi(argv[2]);
+            pixelPercent = stoi(argv[3]);
         }
         if(sampler_name == "corjitt") {
-            pixelPercent = stoi(argv[2]);
+            pixelPercent = stoi(argv[3]);
         }
     }
 
@@ -69,7 +71,7 @@ int main(int argc, char* argv[]) {
 
     // downsample the input image for testing
     Mat downsample_img;
-    cv::resize(input_img, downsample_img, Size(), 1.0, 1.0, INTER_LINEAR);
+    cv::resize(input_img, downsample_img, Size(), 0.4, 0.4, INTER_LINEAR);
     // cout << "size: " << downsample_img.size() << endl;
     // vector to store information of the pixel's position
     vector<pair<int, int>> sampling_pattern;
@@ -81,15 +83,15 @@ int main(int argc, char* argv[]) {
     cv::Mat resampled_img = Mat::zeros(downsample_img.size(), CV_8UC3);
 
     // create new sampler and call random sampling method
-    Sampler rand_sampler(downsample_img, pixelPercent);
+    Sampler rand_sampler(pixelPercent);
     if(sampler_name == "random") {
-        sampling_pattern = rand_sampler.random_sampling();
+        sampling_pattern = rand_sampler.random_sampling(downsample_img);
     }
     if(sampler_name == "halton") {
-        sampling_pattern = rand_sampler.halton_sequence(2, 3);
+        sampling_pattern = rand_sampler.halton_sequence(downsample_img, 2, 3);
     }
     if(sampler_name == "corjitt") {
-        sampling_pattern = rand_sampler.correlated_multi_jitterred();
+        sampling_pattern = rand_sampler.correlated_multi_jitterred(downsample_img);
     }
     
     
@@ -103,13 +105,19 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    if(sampler_name == "random") {
-        imwrite("../imgs/outputs/random_pixels_out.jpg", resampled_img);
-    }
-    if(sampler_name == "halton") {
-        imwrite("../imgs/outputs/halton_sequence_out.png", resampled_img);
-    }
-    if(sampler_name == "corjitt") {
-        imwrite("../imgs/outputs/correlated_jittered_out.png", resampled_img);
-    }
+    // interpolation
+    // Interpolater interpolater;
+    // resampled_img = interpolater.splatting_simple(resampled_img, sampling_pattern, 1);
+
+    string output_name = "../imgs/outputs/" + fileName;
+    // if(sampler_name == "random") {
+    //     // imwrite("../imgs/outputs/random_pixels_out.jpg", resampled_img);
+    // }
+    // if(sampler_name == "halton") {
+    //     // imwrite("../imgs/outputs/halton_sequence_out.png", resampled_img);
+    // }
+    // if(sampler_name == "corjitt") {
+    //     // imwrite("../imgs/outputs/correlated_jittered_out.png", resampled_img);
+    // }
+    imwrite("../imgs/outputs/halton_no_interpolate.jpg", resampled_img);
 }

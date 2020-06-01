@@ -18,11 +18,17 @@ using namespace glm;
 class Sampler {
 
     private:
-        Mat _input_image;
+        int _percent_pixels;
         int _number_sample_pixel;
         int _num_pixel_xAxis;
         int _num_pixel_yAxis;
 
+        // set internal variable
+        void set_variable(Mat input_image) {
+            _num_pixel_xAxis = input_image.size().width;
+            _num_pixel_yAxis = input_image.size().height;
+            _number_sample_pixel = _num_pixel_xAxis * _num_pixel_yAxis * _percent_pixels / 100;
+        }
 
         // print the sampling pattern
         void print_sampling_pattern(vector<pair<int, int>> sampled_pxs) {
@@ -64,16 +70,13 @@ class Sampler {
         }  
         
     public:
-        Sampler(Mat input_image, int percent_pixels){
-            _input_image = input_image;
-
-            _num_pixel_xAxis = _input_image.size().width;
-            _num_pixel_yAxis = _input_image.size().height;
-            _number_sample_pixel = _num_pixel_xAxis * _num_pixel_yAxis * percent_pixels / 100;
+        Sampler(int percent_pixels){
+            _percent_pixels = percent_pixels;
         }
 
         // random sampling method
-        vector<pair<int, int>> random_sampling() {
+        vector<pair<int, int>> random_sampling(Mat input_image) {
+            set_variable(input_image);
 
             vector<pair<int, int>> sampled_pxs(_number_sample_pixel);
             int x_pos = 0;
@@ -97,7 +100,8 @@ class Sampler {
             return sampled_pxs;
         }
 
-        vector<pair<int, int>> halton_sequence(int base_x, int base_y) {
+        vector<pair<int, int>> halton_sequence(Mat input_image, int base_x, int base_y) {
+            set_variable(input_image);
 
             vector<pair<int, int>> sampled_pxs(_number_sample_pixel);
             int x_pos;
@@ -118,7 +122,8 @@ class Sampler {
             return sampled_pxs;
         }
 
-        vector<pair<int, int>> correlated_multi_jitterred() {
+        vector<pair<int, int>> correlated_multi_jitterred(Mat input_image) {
+            set_variable(input_image);
 
             // find nearest square number to the number of samples
             int n = std::pow(std::ceil(std::sqrt(_number_sample_pixel)), 2);
@@ -163,8 +168,78 @@ class Sampler {
                               sampled_pxs[j * s + temp].second);
                 }
             }
+            
+/*
+            int m = static_cast<int>(std::sqrt(_number_sample_pixel * 1.0f));
+            int n = (_number_sample_pixel + m - 1) / m;
+            // vector to store the sampling pattern, with size is n
+            vector<pair<int, int>> sampled_pxs(m*n, make_pair(0, 0));
+            int s = 1;
+            int p = 5;
+            for(int j = 0; j < m; ++j) {
+                for(int i = 0; i < n; ++i) {
+                    s = permute(s, _number_sample_pixel, p * 0x51633e2d);
+                    int sx = permute(s % m, m, p * 0x68bc21eb);
+                    int sy = permute(s / m, n, p * 0x02e5be93);
+                    float jx = randfloat(s, p * 0x967a889b);
+                    float jy = randfloat(s, p * 0x368cc8b7);
+                    sampled_pxs[j * m + i].first = (sx + (sy + jx) / n) / m * _num_pixel_xAxis;
+                    sampled_pxs[j * m + i].second = (s + jy) / _number_sample_pixel * _num_pixel_yAxis;
+                }
+            }
+*/
             print_sampling_pattern(sampled_pxs);
 
             return sampled_pxs;
         }
+/*
+        unsigned permute(unsigned i, unsigned l, unsigned p) {
+            unsigned w = l -1;
+            w |= w >> 1;
+            w |= w >> 2;
+            w |= w >> 4;
+            w |= w >> 8;
+            w |= w >> 16;
+            do
+            {
+                i ^= p;
+                i *= 0xe170893d;
+
+                i ^= p >> 16;
+                i ^= (i & w) >> 4;
+                i ^= p >> 8;
+                i *= 0x0929eb3f;
+
+                i ^= p >> 23;
+                i ^= (i & w) >> 1;
+                i *= 1 | p >> 27;
+                i *= 0x6935fa69;
+                i ^= (i & w) >> 11;
+                i *= 0x74dcb303;
+                i ^= (i & w) >> 2;
+                i *= 0x9e501cc3;
+                i ^= (i & w) >> 2;
+                i *= 0xc860a3df;
+
+                i &= w;
+                i ^= i;
+            } while (i >= l);
+
+            return (i + p) % l;
+        }
+        float randfloat(unsigned i, unsigned p) {
+            i ^= p;
+            i ^= i >> 17;
+            i ^= i >> 10;
+            i *= 0xb36534e5;
+            i ^= i >> 12;
+            i ^= i >> 21;
+            i *= 0x93fc4795;
+            i ^= 0xdf6e307f;
+            i ^= i >> 17;
+            i *= 1 | p >> 18;
+
+            return i * (1.0f / 4294967808.0f);
+        }
+*/        
 };
