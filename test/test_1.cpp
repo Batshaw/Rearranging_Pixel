@@ -16,6 +16,7 @@
 
 #include <sampler.cpp>
 #include <interpolater.cpp>
+#include <filter.cpp>
 
 using namespace cv;
 using namespace std;
@@ -71,7 +72,7 @@ int main(int argc, char* argv[]) {
 
     // downsample the input image for testing
     Mat downsample_img;
-    cv::resize(input_img, downsample_img, Size(), 0.4, 0.4, INTER_LINEAR);
+    cv::resize(input_img, downsample_img, Size(), 1.0, 1.0, INTER_LINEAR);
     // cout << "size: " << downsample_img.size() << endl;
     // vector to store information of the pixel's position
     vector<pair<int, int>> sampling_pattern;
@@ -106,8 +107,11 @@ int main(int argc, char* argv[]) {
     }
 
     // interpolation
-    // Interpolater interpolater;
-    // resampled_img = interpolater.splatting_simple(resampled_img, sampling_pattern, 1);
+    Interpolater interpolater;
+    resampled_img = interpolater.splatting_simple(resampled_img, sampling_pattern, 10, 0.1);
+
+    Filter filter(1);
+    resampled_img = filter.median_filter(resampled_img);
 
     string output_name = "../imgs/outputs/" + fileName;
     // if(sampler_name == "random") {
@@ -119,5 +123,5 @@ int main(int argc, char* argv[]) {
     // if(sampler_name == "corjitt") {
     //     // imwrite("../imgs/outputs/correlated_jittered_out.png", resampled_img);
     // }
-    imwrite("../imgs/outputs/halton_no_interpolate.jpg", resampled_img);
+    imwrite("../imgs/outputs/test_imgs/3_corjitt_splat_10.jpg", resampled_img);
 }
