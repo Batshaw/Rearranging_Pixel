@@ -15,59 +15,7 @@ using namespace std;
 using namespace cv;
 using namespace glm;
 
-class Sampler {
-
-    private:
-        int _percent_pixels;
-        int _number_sample_pixel;
-        int _num_pixel_xAxis;
-        int _num_pixel_yAxis;
-
-        // set internal variable
-        void set_variable(Mat input_image) {
-            _num_pixel_xAxis = input_image.size().width;
-            _num_pixel_yAxis = input_image.size().height;
-            _number_sample_pixel = _num_pixel_xAxis * _num_pixel_yAxis * _percent_pixels / 100;
-        }
-
-        // print the sampling pattern
-        void print_sampling_pattern(vector<pair<int, int>> sampled_pxs) {
-            for(int i = 0; i < sampled_pxs.size(); ++i) {
-                cout << "(" << sampled_pxs[i].first << ", " << sampled_pxs[i].second << ")   ";
-            }
-            cout << endl;
-        }
-
-        // random function using pseudo random generator mt19937
-        int rand_gen(int min_rand, int max_rand) {
-            std::random_device rand_device;
-            std::mt19937 generator(rand_device());
-            // std::default_random_engine generator;
-            std::uniform_real_distribution<> dist(min_rand, max_rand);
-            // std::uniform_int_distribution<> dist(min_rand, max_rand);
-            float random_number = dist(generator);
-            // cout << "test float random: " << random_number << endl;
-
-            return floor(random_number);
-            // return random_number;
-        }    
-
-        // help function to generate n-th number of Halton Sequence
-        float halton_single_number(int index, int base) {
-            
-            float result = 0;
-            float f = 1;
-
-            while (index > 0)
-            {
-                // compute result
-                f /= base;
-                result += f*(index % base);
-                index /= base;
-            }
-            
-            return result;
-        }  
+class Sampler {  
         
     public:
         Sampler(int percent_pixels){
@@ -78,23 +26,40 @@ class Sampler {
         vector<pair<int, int>> random_sampling(Mat input_image) {
             set_variable(input_image);
 
-            vector<pair<int, int>> sampled_pxs(_number_sample_pixel);
+            vector<pair<int, int>> sampled_pxs;
             int x_pos = 0;
             int y_pos = 0;
             std::pair<int, int> pos;
 
-            for(int i = 0; i < _number_sample_pixel; ++i) {
+            int width = input_image.size().width;
+            int height = input_image.size().height;
 
-                do
-                {
-                    x_pos = rand_gen(0, _num_pixel_xAxis);
-                    y_pos = rand_gen(0, _num_pixel_yAxis);
+            vector<pair<int, int>> not_sampled_pxs;
+            for(int i = 0; i < width; ++i) {
+                for(int j = 0; j < height; ++j) {
+                    not_sampled_pxs.push_back(pair<int, int>(i, j));
+                }
+            }
 
-                    pos = make_pair(x_pos, y_pos);
 
-                } while (find(sampled_pxs.begin(), sampled_pxs.end(), pos) != sampled_pxs.end());
+            for(int i = 0; i < _number_sample_pixel; i++) {
+                // do
+                // {
+                //     // x_pos = rand_gen(0, _num_pixel_xAxis);
+                //     // y_pos = rand_gen(0, _num_pixel_yAxis);
+                //     x_pos = drand48() * _num_pixel_xAxis;
+                //     y_pos = drand48() * _num_pixel_yAxis;
 
-                cout << "(" << pos.first << ", " << pos.second << ")     ";
+                //     pos = make_pair(x_pos, y_pos);
+
+                // } while (find(sampled_pxs.begin(), sampled_pxs.end(), pos) != sampled_pxs.end());
+                // int n = rand_gen(0, not_sampled_pxs.size());
+                int n = rand() % not_sampled_pxs.size();
+                pos.first = not_sampled_pxs[n].first;
+                pos.second = not_sampled_pxs[n].second;
+                // iter_swap(not_sampled_pxs.begin() + n, not_sampled_pxs.end());
+                not_sampled_pxs[n] = not_sampled_pxs.back();
+                not_sampled_pxs.pop_back();
                 sampled_pxs.push_back(pos);
             }
             return sampled_pxs;
@@ -188,7 +153,7 @@ class Sampler {
                 }
             }
 */
-            print_sampling_pattern(sampled_pxs);
+            // print_sampling_pattern(sampled_pxs);
 
             return sampled_pxs;
         }
@@ -241,5 +206,59 @@ class Sampler {
 
             return i * (1.0f / 4294967808.0f);
         }
-*/        
+*/ 
+
+    private:
+
+        // set internal variable
+        void set_variable(Mat input_image) {
+            _num_pixel_xAxis = input_image.size().width;
+            _num_pixel_yAxis = input_image.size().height;
+            _number_sample_pixel = _num_pixel_xAxis * _num_pixel_yAxis * _percent_pixels / 100;
+        }
+
+        // print the sampling pattern
+        void print_sampling_pattern(vector<pair<int, int>> sampled_pxs) {
+            for(int i = 0; i < sampled_pxs.size(); ++i) {
+                cout << "(" << sampled_pxs[i].first << ", " << sampled_pxs[i].second << ")   ";
+            }
+            cout << endl;
+        }
+
+        // random function using pseudo random generator mt19937
+        int rand_gen(int min_rand, int max_rand) {
+            std::random_device rand_device;
+            std::mt19937 generator(rand_device());
+            // std::default_random_engine generator;
+            // std::uniform_real_distribution<> dist(min_rand, max_rand);
+            std::uniform_int_distribution<> dist(min_rand, max_rand);
+            int random_number = dist(generator);
+            // cout << "test float random: " << random_number << endl;
+
+            // return floor(random_number);
+            return random_number;
+        }    
+
+        // help function to generate n-th number of Halton Sequence
+        float halton_single_number(int index, int base) {
+            
+            float result = 0;
+            float f = 1;
+
+            while (index > 0)
+            {
+                // compute result
+                f /= base;
+                result += f*(index % base);
+                index /= base;
+            }
+            
+            return result;
+        }
+
+            
+        int _percent_pixels;
+        int _number_sample_pixel;
+        int _num_pixel_xAxis;
+        int _num_pixel_yAxis;
 };

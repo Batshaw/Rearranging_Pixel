@@ -108,8 +108,8 @@ int main(int argc, char* argv[]) {
 
     // interpolation
     Interpolater interpolater;
-    resampled_img = interpolater.splatting_simple(resampled_img, sampling_pattern, 9, 0.1);
-    // resampled_img = interpolater.delaunay_triangulation(resampled_img, sampling_pattern);
+    // resampled_img = interpolater.splatting_simple(resampled_img, sampling_pattern, 4, 0.1);
+    resampled_img = interpolater.delaunay_triangulation(resampled_img, sampling_pattern);
 
     // Filter filter(1);
     // resampled_img = filter.median_filter(resampled_img);
