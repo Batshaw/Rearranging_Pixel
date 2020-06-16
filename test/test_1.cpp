@@ -89,11 +89,12 @@ int main(int argc, char* argv[]) {
         sampling_pattern = rand_sampler.random_sampling(downsample_img);
     }
     if(sampler_name == "halton") {
-        sampling_pattern = rand_sampler.halton_sequence(downsample_img, 2, 3);
+        sampling_pattern = rand_sampler.halton_sequence(downsample_img, base_x, base_y);
     }
     if(sampler_name == "corjitt") {
         sampling_pattern = rand_sampler.correlated_multi_jitterred(downsample_img);
     }
+    cout << "size of the pattern: " << sampling_pattern.size() << endl;
     
     
 

@@ -61,31 +61,41 @@ class Interpolater {
         Mat delaunay_triangulation(Mat input_img, vector<pair<int, int>> pattern) {
 
             cout << "Delaunay Triangulation..." << endl;
+            int width = input_img.size().width;
+            int height = input_img.size().height;
+
             // collect points from pattern and save them to a vector of Point2f
             vector<Point2f> points;
             for(int i = 0; i < pattern.size(); ++i) {
-                Point2f point(pattern[i].first, pattern[i].second);
-                points.push_back(point);
+                int x_coord = pattern[i].first;
+                int y_coord = pattern[i].second;
+
+                if(x_coord < width && y_coord < height) {
+                    Point2f point(x_coord, y_coord);
+                    points.push_back(point);
+                }
             }
             cout << "collect points: " << points.size() << endl;
-
+            cout << "Number of points: " << pattern.size() << endl;
             // define space to partition with Delaunay
             // a rectangle equals to the input image
-            Rect rect(0, 0, input_img.size().width, input_img.size().height);
+            Rect rect(0, 0, width, height);
 
             // create a instance of Subdiv2D
             Subdiv2D subdiv(rect);
             cout << "subdiv created!" << endl;
             // insert point to subdiv
             subdiv.insert(points);
+            // for(vector<Point2f>::iterator it = points.begin(); it != points.end(); it++) {
+            //     subdiv.insert(*it);
+            // }
+
             cout << "insert points to subdiv" << endl;
             // vector of vec6f to store the triangles
             vector<Vec6f> triangleList;
             cout << "get triangleList..." << endl;
             subdiv.getTriangleList(triangleList);
 
-            cout << "Number of points: " << pattern.size() << endl;
-            cout << "Number of points: " << points.size() << endl;
             cout << "Number of triangles: " << triangleList.size() << endl;
 
             // draw the triangles to test

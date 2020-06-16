@@ -1,0 +1,17 @@
+25% of the image (1500000 samples)
+    radius: (max distance between 2 pixels)
+        corjitt: 31
+        halton: 12
+        random: 30
+
+50% of the image (3000000 samples)
+    radius:
+        corjitt: 11
+        halton: 6
+        random: 12
+
+75% of the image ( 4500000samples)
+    radius: 
+        corjitt: 7
+        halton:
+        random:

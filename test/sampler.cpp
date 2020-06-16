@@ -26,9 +26,9 @@ class Sampler {
         vector<pair<int, int>> random_sampling(Mat input_image) {
             set_variable(input_image);
 
-            vector<pair<int, int>> sampled_pxs;
-            int x_pos = 0;
-            int y_pos = 0;
+            vector<pair<int, int>> sampled_pxs(_number_sample_pixel, make_pair(0, 0));
+            // int x_pos = 0;
+            // int y_pos = 0;
             std::pair<int, int> pos;
 
             int width = input_image.size().width;
@@ -60,7 +60,8 @@ class Sampler {
                 // iter_swap(not_sampled_pxs.begin() + n, not_sampled_pxs.end());
                 not_sampled_pxs[n] = not_sampled_pxs.back();
                 not_sampled_pxs.pop_back();
-                sampled_pxs.push_back(pos);
+                // sampled_pxs.push_back(pos);
+                sampled_pxs[i] = pos;
             }
             return sampled_pxs;
         }
@@ -68,10 +69,11 @@ class Sampler {
         vector<pair<int, int>> halton_sequence(Mat input_image, int base_x, int base_y) {
             set_variable(input_image);
 
-            vector<pair<int, int>> sampled_pxs(_number_sample_pixel);
+            vector<pair<int, int>> sampled_pxs(_number_sample_pixel, make_pair(0, 0));
             int x_pos;
             int y_pos;
             std::pair<int, int> pos;
+            cout << "number of sample pixel: " << _number_sample_pixel << endl;
 
             for(int i = 0; i < _number_sample_pixel; ++i) {
 
@@ -81,9 +83,10 @@ class Sampler {
                 pos = make_pair(x_pos, y_pos);
                 
                 // push in the pattern vector
-                cout << "(" << pos.first << ", " << pos.second << ")  ";
-                sampled_pxs.push_back(pos);
+                // cout << "(" << pos.first << ", " << pos.second << ")  ";
+                sampled_pxs[i] = pos;
             }
+            cout << "number of points by halton: " << sampled_pxs.size() << endl;
             return sampled_pxs;
         }
 
