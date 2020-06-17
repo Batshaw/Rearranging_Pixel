@@ -10,8 +10,8 @@
         halton: 6
         random: 12
 
-75% of the image ( 4500000samples)
+75% of the image (4500000 samples)
     radius: 
         corjitt: 7
-        halton:
-        random:
+        halton: 4
+        random: 8

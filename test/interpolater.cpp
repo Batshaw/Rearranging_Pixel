@@ -21,14 +21,15 @@ class Interpolater {
         }
 
         // simple splatting with/-out opacity
-        Mat splatting_simple(Mat input_img, vector<pair<int, int>> pattern, int radius, double alpha = 0.1) {
+        Mat splatting_simple(Mat input_img, vector<pair<int, int>> pattern, Mat result, int radius, double alpha = 0.1) {
 
             cout << "Splatting..." << endl;
-            Mat overlay;
-            input_img.copyTo(overlay); 
-            Mat result; 
-            input_img.copyTo(result);
-            int overlay_count = 1;
+            // Mat overlay;
+            // input_img.copyTo(overlay); 
+            // Mat result; 
+            // input_img.copyTo(result);
+            
+            // int overlay_count = 1;
             // for (int i = 1; i <= radius; i += 2){
 
             //     cout << endl;
@@ -50,8 +51,15 @@ class Interpolater {
             for(int j = 0; j < pattern.size(); ++j) {
 
                 Point pos(pattern[j].first, pattern[j].second);
-                Vec3b color = input_img.at<Vec3b>(pos);
-                cv::circle(result, pos, radius, color, -1, cv::LINE_AA, 0);
+
+                if(radius == 0) {
+                    result.at<Vec3b>(pos) = input_img.at<Vec3b>(pos);
+                }
+                else
+                {
+                    Vec3b color = input_img.at<Vec3b>(pos);
+                    cv::circle(result, pos, radius, color, -1, cv::LINE_AA, 0);
+                }  
             }
             
             return result;
@@ -99,30 +107,33 @@ class Interpolater {
             cout << "Number of triangles: " << triangleList.size() << endl;
 
             // draw the triangles to test
-            // vector<Point> triangle_points(3);
-            // cout << "Draw triangle..." << endl;
-            // for(int i = 0; i < triangleList.size(); ++i) {
-            //     Vec6f tri = triangleList[i];
-            //     triangle_points[0] = Point((int)tri[0], (int)tri[1]);
-            //     triangle_points[1] = Point((int)tri[2], (int)tri[3]);
-            //     triangle_points[2] = Point((int)tri[4], (int)tri[5]);
+            Mat result;
+            input_img.copyTo(result);
+            vector<Point> triangle_points(3);
+            cout << "Draw triangle..." << endl;
+            for(int i = 0; i < triangleList.size(); ++i) {
+                Vec6f tri = triangleList[i];
+                triangle_points[0] = Point(cvRound(tri[0]), cvRound(tri[1]));
+                triangle_points[1] = Point(cvRound(tri[2]), cvRound(tri[3]));
+                triangle_points[2] = Point(cvRound(tri[4]), cvRound(tri[5]));
 
-            //     if(rect.contains(triangle_points[0]) 
-            //         && rect.contains(triangle_points[1])
-            //         && rect.contains(triangle_points[2])) {
-                        
-            //             line(input_img, triangle_points[0], triangle_points[1], Scalar(255, 0, 0), 1, LINE_AA, 0);
-            //             line(input_img, triangle_points[0], triangle_points[2], Scalar(255, 0, 0), 1, LINE_AA, 0);
-            //             line(input_img, triangle_points[2], triangle_points[1], Scalar(255, 0, 0), 1, LINE_AA, 0);
-            //     }
-            // }
+                if(rect.contains(triangle_points[0]) 
+                    && rect.contains(triangle_points[1])
+                    && rect.contains(triangle_points[2])) {
+
+                        Vec3b color1 = input_img.at<Vec3b>(triangle_points[0]);
+                        Vec3b color2 = input_img.at<Vec3b>(triangle_points[1]);
+                        Vec3b color3 = input_img.at<Vec3b>(triangle_points[2]);
+                        Scalar poly_color = (color1 + color2 + color3) / 3.0f;
+                        fillConvexPoly(result, triangle_points, poly_color, 8, 0);
+                }
+            }
 
             // compute the max. distance between 2 sampled pixels
             int radius = ceil(compute_max_distance(triangleList));
             cout << "Radius for Splatting: " << radius << endl;
 
-            Mat result;
-            result = splatting_simple(input_img, pattern, radius);
+            result = splatting_simple(input_img, pattern, result, 5);
 
             return result;
         }

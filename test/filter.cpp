@@ -18,13 +18,6 @@ using namespace cv;
 using namespace glm;
 
 class Filter {
-    private:
-        int _radius;
-
-        float compute_weight(float dist) {
-            float result = (1 - dist) * 9 /(_radius - 1) + 10;
-            return result;
-        }
 
     public:
         Filter(int radius) {
@@ -90,4 +83,63 @@ class Filter {
             }
             return input_img;
         }
+
+        Mat biCubicInter(Mat input_img) {
+
+            cout << "Bicubic Interpolation..." << endl;
+            int width = input_img.size().width;
+            int height = input_img.size().height;
+            int radius = 3;
+
+            // loop through each pixel in image
+            for(int i = 0; i < width; ++i) {
+                for(int j = 0; j < height; ++j) {
+
+                    // exclude the rand of the image
+                    if(i > radius && j > radius && (i + radius) < width && (j + radius) < height ) {
+
+                        Vec3b win[4][4];
+                        int row_count = 0;
+                        // loop through each pixel in window
+                        for(int a = i - radius; a <= i + radius; a += 2) {
+                            int col_count = 0;
+                            for(int b = j - radius; b <= j + radius; b += 2) {
+                                Vec3b color = input_img.at<Vec3b>(cv::Point(a, b));
+                                win[col_count][row_count] = color;
+                                col_count += 1;
+                            }
+                            row_count += 1;
+                        }
+
+                        input_img.at<Vec3b>(cv::Point(i, j)) = compute_center_value(win);
+                    }
+                }
+            }
+            return input_img;
+        }
+
+        Vec3b compute_center_value(Vec3b win[4][4]) {
+            Vec3b arr[4];
+            arr[0] = cubicInter(win[0]);
+            arr[1] = cubicInter(win[1]);
+            arr[2] = cubicInter(win[2]);
+            arr[3] = cubicInter(win[3]);
+
+            return cubicInter(arr);
+        }
+        Vec3b cubicInter(Vec3b arr[4]) {
+            Vec3b result;
+            result = arr[1] + 0.5*0.5*(arr[2] - arr[0] + 0.5*(2.0*arr[0] - 5.0*arr[1] + 4.0*arr[2] - arr[3] + 0.5*(3.0*(arr[1] - arr[2]) + arr[3] - arr[0])));
+            return result;
+        }
+
+    private:
+        int _radius;
+
+        float compute_weight(float dist) {
+            float result = (1 - dist) * 9 /(_radius - 1) + 10;
+            return result;
+        }
+
+        
 };
