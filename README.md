@@ -1,6 +1,10 @@
 # Rearranging_Pixel
 
 USAGE: ./Test_1 [sampler] <br>
-                random [percent] <br>
-                halton [base_x] [base_y] [percent] <br>
-                corjitt [percent] <br>
+
+sampler:<br>
+<ul>
+  <li>random [percent]</li>
+  <li>halton [base_x] [base_y] [percent]</li>
+  <li>corjitt [percent]</li>
+</ul>
