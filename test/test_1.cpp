@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
 
     // downsample the input image for testing
     Mat downsample_img;
-    cv::resize(input_img, downsample_img, Size(), 0.5, 0.5, INTER_CUBIC);
+    cv::resize(input_img, downsample_img, Size(), 1.0, 1.0, INTER_CUBIC);
     // cout << "size: " << downsample_img.size() << endl;
     // vector to store information of the pixel's position
     vector<pair<int, int>> sampling_pattern;
@@ -113,8 +113,8 @@ int main(int argc, char* argv[]) {
     resampled_img = interpolater.delaunay_triangulation(resampled_img, sampling_pattern);
 
     // Filter filter(1);
-    // resampled_img = filter.median_filter(resampled_img);
     // resampled_img = filter.biCubicInter(resampled_img);
+    // resampled_img = filter.median_filter(resampled_img);
 
     string output_name = "../imgs/outputs/" + fileName;
     // if(sampler_name == "random") {

@@ -21,46 +21,46 @@ class Interpolater {
         }
 
         // simple splatting with/-out opacity
-        Mat splatting_simple(Mat input_img, vector<pair<int, int>> pattern, Mat result, int radius, double alpha = 0.1) {
+        Mat splatting_simple(Mat input_img, vector<pair<int, int>> pattern, Mat result, int radius) {
 
             cout << "Splatting..." << endl;
-            // Mat overlay;
-            // input_img.copyTo(overlay); 
-            // Mat result; 
-            // input_img.copyTo(result);
+            Mat overlay;
+            input_img.copyTo(overlay); 
+            // // Mat result; 
+            input_img.copyTo(result);
             
-            // int overlay_count = 1;
-            // for (int i = 1; i <= radius; i += 2){
+            int overlay_count = 1;
+            for (int i = 1; i <= radius; i++){
 
-            //     cout << endl;
-            //     cout << "overlay " << overlay_count << "  ";
-            //     for(int j = 0; j < pattern.size(); ++j) {
+                cout << endl;
+                cout << "overlay " << overlay_count << "  ";
+                for(int j = 0; j < pattern.size(); ++j) {
 
-            //         Point pos(pattern[j].first, pattern[j].second);
-            //         Vec3b color = input_img.at<Vec3b>(pos);
-            //         cv::circle(overlay, pos, i, color, -1, cv::LINE_AA, 0);
-            //     }
+                    Point pos(pattern[j].first, pattern[j].second);
+                    Vec3b color = input_img.at<Vec3b>(pos);
+                    cv::circle(overlay, pos, i, color, -1, cv::LINE_AA, 0);
+                }
                 
-            //     double trans_alpha = compute_alpha(i, radius, alpha);
-            //     cv::addWeighted(overlay, trans_alpha, result, 1-trans_alpha, 0, result);      
+                double trans_alpha = compute_alpha(i, radius);
+                cv::addWeighted(overlay, trans_alpha, result, 1-trans_alpha, 0, result);      
 
-            //     overlay_count += 1;            
-            // }
+                overlay_count += 1;            
+            }
 
             // test just splatting without opacity
-            for(int j = 0; j < pattern.size(); ++j) {
+            // for(int j = 0; j < pattern.size(); ++j) {
 
-                Point pos(pattern[j].first, pattern[j].second);
+            //     Point pos(pattern[j].first, pattern[j].second);
 
-                if(radius == 0) {
-                    result.at<Vec3b>(pos) = input_img.at<Vec3b>(pos);
-                }
-                else
-                {
-                    Vec3b color = input_img.at<Vec3b>(pos);
-                    cv::circle(result, pos, radius, color, -1, cv::LINE_AA, 0);
-                }  
-            }
+            //     if(radius == 0) {
+            //         result.at<Vec3b>(pos) = input_img.at<Vec3b>(pos);
+            //     }
+            //     else
+            //     {
+            //         Vec3b color = input_img.at<Vec3b>(pos);
+            //         cv::circle(result, pos, radius, color, -1, cv::LINE_AA, 0);
+            //     }  
+            // }
             
             return result;
         }
@@ -68,7 +68,8 @@ class Interpolater {
         // Delaunay triangulation
         Mat delaunay_triangulation(Mat input_img, vector<pair<int, int>> pattern) {
 
-            cout << "Delaunay Triangulation..." << endl;
+            // cout << "Delaunay Triangulation..." << endl;
+/*            
             int width = input_img.size().width;
             int height = input_img.size().height;
 
@@ -128,12 +129,13 @@ class Interpolater {
                         fillConvexPoly(result, triangle_points, poly_color, 8, 0);
                 }
             }
-
+*/
             // compute the max. distance between 2 sampled pixels
-            int radius = ceil(compute_max_distance(triangleList));
-            cout << "Radius for Splatting: " << radius << endl;
+            // int radius = ceil(compute_max_distance(triangleList));
+            // cout << "Radius for Splatting: " << radius << endl;
+            Mat result;
 
-            result = splatting_simple(input_img, pattern, result, 5);
+            result = splatting_simple(input_img, pattern, result, 8);
 
             return result;
         }
@@ -141,11 +143,18 @@ class Interpolater {
     private:
         
         // compute the transparency value
-        float compute_alpha(int current_r, int radius, double alpha) {
-            float result = (current_r - 1) * (alpha - 1) / (radius - 1) + 1;
-            result = (int)(result * 100 + 0.5f);
-            result /= 100.0f;
-            cout << "alpha: " << result << "   radius: " << current_r << endl;
+        // using cos(x)⁴ to compute the transparency. x_range [0, pi/2]
+        //                                            y_range [1, 0] 
+        float compute_alpha(int current_r, int radius) {
+            // cout<< "max_radius: "<< radius<< endl;
+            // angle in degree
+            double angle = ((double)current_r - 1) / ((double)radius - 1) * 90.00;
+            // cout<< "angle in degree: "<< angle<< endl;
+            // turn the angle into radian
+            angle = angle * CV_PI / 180;
+            // cout<< "angle in radian: "<< angle<< endl;
+            float result = pow(cos(angle), 4);
+            cout << "alpha: " << result << "   curr_radius: " << current_r << endl;
             return result;
         }
 
