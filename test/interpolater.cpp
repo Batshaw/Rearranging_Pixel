@@ -11,13 +11,13 @@
 
 using namespace std;
 using namespace cv;
-using namespace glm;
+// using namespace glm;
 
 class Interpolater {
 
     public:
-        Interpolater() {
-
+        Interpolater(int size_of_window) {
+            _size_of_window = size_of_window;
         }
 
         // simple splatting with/-out opacity
@@ -37,7 +37,7 @@ class Interpolater {
                 for(int j = 0; j < pattern.size(); ++j) {
 
                     Point pos(pattern[j].first, pattern[j].second);
-                    Vec3b color = input_img.at<Vec3b>(pos);
+                    Vec4b color = input_img.at<Vec4b>(pos);
                     cv::circle(overlay, pos, i, color, -1, cv::LINE_AA, 0);
                 }
                 
@@ -62,6 +62,59 @@ class Interpolater {
             //     }  
             // }
             
+            return result;
+        }
+
+        // TODO - pixel splatting
+        Mat splatting_pixel(Mat input_img, vector<pair<int, int>> pattern, Mat result, int size = 5) {
+            cout << "Pixel splatting..." << endl;
+
+            int width = input_img.size().width;
+            int height = input_img.size().height;
+            input_img.copyTo(result);
+
+            vector<vector<int>> alpha_matrix = alpha_value(size);
+
+            int radius = (size - 1) / 2;
+            cout<< "radius: "<< radius<< endl;
+
+            for(int a = 0; a < pattern.size(); a++) {
+
+                Point pos(pattern[a].first, pattern[a].second);
+                // color of sampling pixel
+                Vec4b color = input_img.at<Vec4b>(pos);
+
+                // counter of the rows and columns in the alpha_matrix
+                int count_x = 0;
+                int count_y = 0;
+
+                for(int i = pos.x - radius; i <= pos.x + radius; i++) {
+                    for(int j = pos.y - radius; j <= pos.y + radius; j++) {
+                        
+                        if(0 <= i && i < width && 0 <= j && j < height) {
+                            // position of each neighboring pixel
+                            Point pos_win_element(i, j);
+
+                            int alpha = alpha_matrix[count_x][count_y];
+
+                            // destination of the blending
+                            Vec4b dst = result.at<Vec4b>(pos_win_element);
+
+                            // source of the blending
+                            Vec4b src = Vec4b(color[0], color[1], color[2], alpha);
+                            // result of the blending
+                            Vec4b res = color_blending(dst, src);
+                            result.at<Vec4b>(pos_win_element) = res;
+                        }
+                        // next column
+                        count_y += 1;
+                    }
+                    // reset column to 0 and go to next row
+                    count_y = 0;
+                    count_x += 1;
+                }
+                // result.at<Vec4b>(pos) = Vec4b(color[0], color[1], color[2], 255);
+            }
             return result;
         }
 
@@ -133,9 +186,10 @@ class Interpolater {
             // compute the max. distance between 2 sampled pixels
             // int radius = ceil(compute_max_distance(triangleList));
             // cout << "Radius for Splatting: " << radius << endl;
-            Mat result;
+            Mat result(input_img.size(), CV_8UC4);
 
-            result = splatting_simple(input_img, pattern, result, 8);
+            // result = splatting_simple(input_img, pattern, result, 5);
+            result = splatting_pixel(input_img, pattern, result, _size_of_window);
 
             return result;
         }
@@ -156,6 +210,66 @@ class Interpolater {
             float result = pow(cos(angle), 4);
             cout << "alpha: " << result << "   curr_radius: " << current_r << endl;
             return result;
+        }
+
+        // function to pre-create a alpha matrix with input radius
+        std::vector<std::vector<int>> alpha_value(int size) {
+            // create new alpha matrix
+            std::vector<std::vector<int>> alpha_matrix;
+
+            // preparing the step and evaluation value
+            double step_x = 1.0 / (size - 1.0);
+            double step_y = 1.0 / (size - 1.0);
+            std::cout << "step_x: " << step_x << std::endl;
+
+            double eval_x = -1.0 / 2.0;
+            std::cout << "eval_x: " << eval_x << std::endl;
+
+            double eval_y = -1.0 / 2.0;
+            double cos_value = 0.0;
+            int alpha = 0;
+
+            for(int i = 0; i < size; i++) {
+                // row of the alpha matrix
+                std::vector<int> row;
+
+                for(int j = 0; j < size; j++) {
+                // evaluation distance to center pixel
+                double dis = std::sqrt(std::pow(eval_x, 2) + std::pow(eval_y, 2));
+
+                if(dis <= 0.5) {
+                    cos_value = std::pow(cos(dis * CV_PI / 2.0), 4);
+                } else
+                {
+                    cos_value = 0;
+                }
+                alpha = (int)(cos_value * 255.0);
+                row.push_back(alpha);
+                eval_y += step_y;
+                }
+                alpha_matrix.push_back(row);
+                // reset eval_y and raise eval_x
+                eval_y = -1.0 / 2.0;
+                eval_x += step_x;
+            }
+
+            return alpha_matrix;
+        }
+
+        // function to perform the color_blending
+        // REFERENCE: https://en.wikipedia.org/wiki/Alpha_compositing
+        Vec4b color_blending(Vec4b dst, Vec4b src) {
+            Vec4b res;
+            // match alpha of srouce to range 0.0 - 1.0
+            float src_alpha = (float)src[3] / 255.0f;
+            // RGB of the source and destination is multiplied with their alpha value (sum of them is equal 1.0)
+            res[0] = src[0] * src_alpha + dst[0] * (1.0f - src_alpha);
+            res[1] = src[1] * src_alpha + dst[1] * (1.0f - src_alpha);
+            res[2] = src[2] * src_alpha + dst[2] * (1.0f - src_alpha);
+            // output of the alpha value
+            res[3] = src[3] + dst[3] * (1.0f - src_alpha);
+
+            return res;
         }
 
         // compute max distance between 2 sampled pixels
@@ -203,4 +317,6 @@ class Interpolater {
             }
             return max;
         }
+
+        int _size_of_window;
 };

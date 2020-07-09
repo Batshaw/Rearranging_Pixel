@@ -41,6 +41,7 @@ int main(int argc, char* argv[]) {
     // Take inputs from command line as options for the application
     string fileName = "test_01.jpg";    // default img
     int pixelPercent = 10;              // default percent of the pixel that need tobe resampled
+    int size_of_window = 5;
     string sampler_name = "";
     int base_x = 2;
     int base_y = 3;
@@ -52,13 +53,20 @@ int main(int argc, char* argv[]) {
             base_x = stoi(argv[3]);
             base_y = stoi(argv[4]);
             pixelPercent = stoi(argv[5]);
+            size_of_window = stoi(argv[6]);
         }
         if(sampler_name == "random") {
             pixelPercent = stoi(argv[3]);
+            size_of_window = stoi(argv[4]);
         }
         if(sampler_name == "corjitt") {
             pixelPercent = stoi(argv[3]);
+            size_of_window = stoi(argv[4]);
         }
+    }
+    if(size_of_window % 2 == 0) {
+        cout << "Size has to be odd!"<< endl;
+        return 0;
     }
 
 
@@ -81,7 +89,8 @@ int main(int argc, char* argv[]) {
                                                 // TEST - resample pixels
 
     //init output image and vector to store which position has already be sampled
-    cv::Mat resampled_img = Mat::zeros(downsample_img.size(), CV_8UC3);
+    // cv::Mat resampled_img = Mat::zeros(downsample_img.size(), CV_8UC3);
+    cv::Mat resampled_img = Mat(downsample_img.size(), CV_8UC4);
 
     // create new sampler and call random sampling method
     Sampler rand_sampler(pixelPercent);
@@ -103,12 +112,13 @@ int main(int argc, char* argv[]) {
         cv::Point pos = cv::Point(sampling_pattern[i].first, sampling_pattern[i].second);
         // check again the position before resampling
         if(pos.x >= 0 && pos.x <= downsample_img.size().width && pos.y >= 0 && pos.y <= downsample_img.size().height) {
-            resampled_img.at<Vec3b>(pos) = downsample_img.at<Vec3b>(pos);
+            Vec3b color = downsample_img.at<Vec3b>(pos);
+            resampled_img.at<Vec4b>(pos) = cv::Vec4b(color[0], color[1], color[2], 255);
         }
     }
 
     // interpolation
-    Interpolater interpolater;
+    Interpolater interpolater(size_of_window);
     // resampled_img = interpolater.splatting_simple(resampled_img, sampling_pattern, 5, 0.1);
     resampled_img = interpolater.delaunay_triangulation(resampled_img, sampling_pattern);
 
@@ -126,5 +136,5 @@ int main(int argc, char* argv[]) {
     // if(sampler_name == "corjitt") {
     //     // imwrite("../imgs/outputs/correlated_jittered_out.png", resampled_img);
     // }
-    imwrite("../imgs/outputs/test_imgs/3_corjitt_splat_10.jpg", resampled_img);
+    imwrite("../imgs/outputs/test_imgs/3_corjitt_splat_10.png", resampled_img);
 }
