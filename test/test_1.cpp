@@ -119,7 +119,7 @@ int main(int argc, char* argv[]) {
 
     // interpolation
     Interpolater interpolater(size_of_window);
-    // resampled_img = interpolater.splatting_simple(resampled_img, sampling_pattern, 5, 0.1);
+    // resampled_img = interpolater.splatting_simple(resampled_img, sampling_pattern, resampled_img, 5);
     resampled_img = interpolater.delaunay_triangulation(resampled_img, sampling_pattern);
 
     // Filter filter(1);
@@ -136,5 +136,5 @@ int main(int argc, char* argv[]) {
     // if(sampler_name == "corjitt") {
     //     // imwrite("../imgs/outputs/correlated_jittered_out.png", resampled_img);
     // }
-    imwrite("../imgs/outputs/test_imgs/3_corjitt_splat_10.png", resampled_img);
+    imwrite("../imgs/ref/output.png", resampled_img);
 }
